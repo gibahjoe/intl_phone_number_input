@@ -132,7 +132,7 @@ class InternationalPhoneNumberInput extends StatefulWidget {
 }
 
 class _InputWidgetState extends State<InternationalPhoneNumberInput> {
-  TextEditingController? controller;
+  late TextEditingController controller;
   double selectorButtonBottomPadding = 0;
 
   Country? country;
@@ -145,6 +145,12 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
     loadCountries();
     controller = widget.textFieldController ?? TextEditingController();
     initialiseWidget();
+    controller.addListener(() async {
+      String? text = controller.text;
+      if (text.startsWith('\+')) {
+        _extractCountryFromDialingCode(text);
+      }
+    });
   }
 
   @override
@@ -358,6 +364,26 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
             isoCode: this.country?.alpha2Code,
             dialCode: this.country?.dialCode),
       );
+    }
+  }
+
+  void _extractCountryFromDialingCode(String text) async {
+    PhoneNumber phoneNumber =
+        await PhoneNumber.getRegionInfoFromPhoneNumber(text);
+    if (phoneNumber != null) {
+      if ((phoneNumber.isoCode?.isNotEmpty ?? false) &&
+          this.country?.alpha2Code != phoneNumber.isoCode) {
+        Country country = this
+            .countries
+            .firstWhere((element) => element.alpha2Code == phoneNumber.isoCode);
+        controller.value = controller.value.copyWith(
+            text: phoneNumber.phoneNumber
+                    ?.replaceAll('+${phoneNumber.dialCode}', '') ??
+                '');
+        setState(() {
+          this.country = country;
+        });
+      }
     }
   }
 
