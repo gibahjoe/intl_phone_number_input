@@ -68,7 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
               onPressed: () {
-                formKey.currentState?.validate();
+                // formKey.currentState?.validate();
+                controller.value=controller.value.copyWith(text: '+2347065315092');
               },
               child: Text('Validate'),
             ),

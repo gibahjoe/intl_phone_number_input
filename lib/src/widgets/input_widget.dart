@@ -373,16 +373,18 @@ class _InputWidgetState extends State<InternationalPhoneNumberInput> {
     if (phoneNumber != null) {
       if ((phoneNumber.isoCode?.isNotEmpty ?? false) &&
           this.country?.alpha2Code != phoneNumber.isoCode) {
-        Country country = this
-            .countries
-            .firstWhere((element) => element.alpha2Code == phoneNumber.isoCode);
         controller.value = controller.value.copyWith(
             text: phoneNumber.phoneNumber
-                    ?.replaceAll('+${phoneNumber.dialCode}', '') ??
+                ?.replaceAll('+${phoneNumber.dialCode}', '') ??
                 '');
-        setState(() {
-          this.country = country;
-        });
+        if(this.country?.alpha2Code != phoneNumber.isoCode){
+          Country country = this
+              .countries
+              .firstWhere((element) => element.alpha2Code == phoneNumber.isoCode);
+          setState(() {
+            this.country = country;
+          });
+        }
       }
     }
   }
